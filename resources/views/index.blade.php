@@ -258,7 +258,15 @@
                 <!-- masonry grid -->
                 <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 mb-8">
                     @foreach ($galleries as $image)
-                        <div class="mb-4 cursor-pointer relative group">
+                        <div class="mb-4 cursor-pointer relative group" x-data="{ openEdit{{ $image->id }}: false }">
+
+                            <button type ="button" class="absolute top-3 right-10" aria-label="Edit Gallery"
+                                @click="openEdit{{ $image->id }} = true">
+                                <i
+                                    class="fa-solid fa-pen text-transparent cursor-pointer
+       hover:text-blue-900/50 transition-all
+       group-hover:text-black/30 duration-100"></i>
+                            </button>
 
                             {{-- tombol delete --}}
                             <form action="{{ route('gallery.destroy', $image->id) }}" method="POST"
@@ -276,6 +284,8 @@
                             <img src="{{ asset('storage/' . $image['url']) }}" alt="Car Gallery"
                                 @click="selectedImage = '{{ $image['url'] }}'"
                                 class="rounded-lg shadow-lg w-full h-auto transition-transform" />
+
+                            @include('gallery.edit', ['gallery' => $image])
                         </div>
                     @endforeach
                 </div>
@@ -302,7 +312,7 @@
 
             </div>
 
-            <div class="text-center mt-5 flex gap-3">
+            <div class="text-center w-full items-center justify-center mt-5 flex gap-3">
                 <button id="gallery-toggle"
                     class="bg-transition border border-primary text-primary px-5 py-2 hover:bg-opacity-90 transition-colors">
                     Show More Photos
