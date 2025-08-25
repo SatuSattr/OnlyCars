@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Event;
 use App\Models\Gallery;
+use App\Models\Merchandise;
 
 class IndexController extends Controller
 {
@@ -12,6 +13,7 @@ class IndexController extends Controller
     {
         $events = Event::all();
         $galleries = Gallery::all();
-        return view('index', compact('events', 'galleries'));
+        $merchs = Merchandise::all();
+        return view('index', compact('events', 'galleries', 'merchs'));
     }
 }

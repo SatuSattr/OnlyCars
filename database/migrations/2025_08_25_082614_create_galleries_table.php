@@ -9,7 +9,8 @@ return new class extends Migration {
     {
         Schema::create('galleries', function (Blueprint $table) {
             $table->id();
-            $table->string('url'); // link image
+            $table->string('title'); // 👈 judul gambar
+            $table->string('url');   // link image
             $table->timestamps();
         });
     }

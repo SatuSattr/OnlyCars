@@ -145,58 +145,99 @@
     </section>
 
     <!-- Events Section -->
-    <section id="events" class="py-20 bg-background">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="events" class="py-20 pb-30 bg-background relative">
+
+        <div class="absolute inset-0 w-full flex justify-end">
+            <img src="img/car.png" alt="" class="object-cover w-4xl h-full blur-xl">
+        </div>
+
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative flex items-center flex-col">
             <div class="text-center mb-12">
                 <h2 class="font-heading font-black text-4xl md:text-5xl text-foreground mb-4">Event Mendatang</h2>
                 <p class="text-xl text-muted-foreground">Datang dan rasakan sendiri serunya meet up dan show mobil
                     komunitas onlycars</p>
             </div>
 
-            <div x-data="{ events: @js($events) }" id="events-content" class="relative expandable-section">
-                <div class="w-full h-20 bg-gradient-to-t from-background to-transparent absolute bottom-0 left-0">
+            <div id="events-content" class="relative expandable-section">
+                <div class="w-full h-20 z-20 bg-gradient-to-t from-background to-transparent absolute bottom-0 left-0">
                 </div>
                 <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                    <template x-for="event in events" :key="event.title">
-                        <div
-                            class="bg-card rounded-sm border border-border hover:shadow-lg transition-shadow overflow-hidden">
-                            <img :src="event.img" :alt="event.title" class="w-full h-48 object-cover mb-4">
+                    @foreach ($events as $ev)
+                        <div class="bg-card rounded-sm border border-border  hover:shadow-lg transition-shadow overflow-hidden relative group"
+                            x-data="{ openEdit{{ $ev->id }}: false }">
+
+
+                            <button type="button" class="absolute top-3 right-10" aria-label="Edit Event"
+                                @click="openEdit{{ $ev->id }} = true">
+                                <i
+                                    class="fa-solid fa-pen text-transparent cursor-pointer
+                       hover:text-blue-900/50 transition-all
+                       group-hover:text-black/30 duration-100"></i>
+                            </button>
+
+
+                            {{-- tombol delete --}}
+                            <form action="{{ route('events.destroy', $ev->id) }}" method="POST"
+                                onsubmit="return confirm('Yakin mau hapus event ini?')" class="absolute top-3 right-3">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit">
+                                    <i
+                                        class="fa-solid fa-trash text-transparent cursor-pointer 
+                          hover:text-red-900/50 transition-all 
+                          group-hover:text-black/30 duration-100"></i>
+                                </button>
+                            </form>
+
+                            <img src="{{ asset('storage/' . $ev->img) }}" alt="{{ $ev->title }}"
+                                class="w-full aspect-[16/9] object-cover mb-4">
+
                             <div class="p-6 pt-0">
-                                <h3 class="font-heading font-bold text-xl text-card-foreground mb-2"
-                                    x-text="event.title">
+                                <h3 class="font-heading font-bold text-xl text-card-foreground mb-2">
+                                    {{ $ev->title }}
                                 </h3>
-                                <p class="text-muted-foreground mb-3" x-text="event.desc"></p>
+                                <p class="text-muted-foreground mb-3">{{ $ev->desc }}</p>
                                 <div class="flex items-center text-sm text-muted-foreground mb-4">
                                     <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd"
                                             d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
                                             clip-rule="evenodd"></path>
                                     </svg>
-                                    <span x-text="event.date"></span>
+                                    <span>{{ $ev->date }}</span>
                                 </div>
                                 <button
                                     class="bg-secondary cursor-pointer text-black px-4 py-2 hover:bg-opacity-90 transition-colors">
                                     Learn More
                                 </button>
                             </div>
+                            @include('events.edit', ['ev' => $ev])
                         </div>
-                    </template>
+                    @endforeach
+
                 </div>
             </div>
 
 
-            <div class="text-center mt-5">
+            <div class="flex gap-3 text-center absolute mx-auto z-20 -bottom-16">
                 <button id="events-toggle"
                     class="bg-transition border border-primary text-primary px-5 py-2 hover:bg-opacity-90 transition-colors">
                     Show More Events
                 </button>
+
+                @include('events.create')
             </div>
         </div>
     </section>
 
+
+
+
+
     <!-- Gallery Section -->
-    <section id="gallery" class="py-20 bg-muted">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section id="gallery" class="bg-muted py-20 relative min-h-[15rem]">
+
+        <div class=" max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="font-heading font-black text-4xl md:text-5xl text-foreground mb-4">
                     Community Gallery
@@ -207,21 +248,36 @@
             </div>
 
             <!-- Alpine state -->
-            <div id="gallery-content" x-data="{ selectedImage: null, gallery: @js($galleries) }" class="expandable-section relative">
+            <div id="gallery-content" x-data="{ selectedImage: null }" class="expandable-section relative">
 
                 <!-- gradient bawah -->
-                <div class="w-full h-30 bg-gradient-to-t from-muted to-transparent absolute bottom-0 left-0"></div>
+                <div
+                    class="w-full h-30 z-20 bg-gradient-to-t from-muted via-muted/60 to-transparent absolute bottom-0 left-0">
+                </div>
 
                 <!-- masonry grid -->
                 <div class="columns-1 sm:columns-2 md:columns-3 lg:columns-4 gap-4 mb-8">
-                    <template x-for="image in gallery">
+                    @foreach ($galleries as $image)
                         <div class="mb-4 cursor-pointer relative group">
-                            <i
-                                class="text-transparent hover:text-red-900/50 transition-all group-hover:text-black/30 duration-100 fa-solid fa-trash absolute top-3 right-3"></i>
-                            <img :src="image.url" alt="Car Gallery" @click="selectedImage = image.url"
+
+                            {{-- tombol delete --}}
+                            <form action="{{ route('gallery.destroy', $image->id) }}" method="POST"
+                                onsubmit="return confirm('Yakin mau hapus foto ini?')" class="absolute top-3 right-3">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit">
+                                    <i
+                                        class="fa-solid fa-trash text-transparent cursor-pointer 
+                          hover:text-red-900/50 transition-all 
+                          group-hover:text-black/30 duration-100"></i>
+                                </button>
+                            </form>
+
+                            <img src="{{ asset('storage/' . $image['url']) }}" alt="Car Gallery"
+                                @click="selectedImage = '{{ $image['url'] }}'"
                                 class="rounded-lg shadow-lg w-full h-auto transition-transform" />
                         </div>
-                    </template>
+                    @endforeach
                 </div>
 
                 <!-- Popup / Lightbox -->
@@ -246,11 +302,12 @@
 
             </div>
 
-            <div class="text-center mt-5">
+            <div class="text-center mt-5 flex gap-3">
                 <button id="gallery-toggle"
                     class="bg-transition border border-primary text-primary px-5 py-2 hover:bg-opacity-90 transition-colors">
                     Show More Photos
                 </button>
+                @include('gallery.create')
             </div>
         </div>
     </section>
@@ -258,70 +315,59 @@
 
 
     <!-- Store Section -->
-
-    <script>
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('storeData', () => ({
-                merch: [{
-                        name: "Retro Hoodie",
-                        img: "https://placehold.co/220x320",
-                        desc: "Cozy up in vintage style.",
-                        price: "$39.99",
-                        rating: "★★★★☆"
-                    },
-                    {
-                        name: "Eco Tote Bag",
-                        img: "https://placehold.co/300x250",
-                        desc: "Carry your essentials sustainably.",
-                        price: "$19.99",
-                        rating: "★★★★★"
-                    },
-                    {
-                        name: "Sticker Pack",
-                        img: "https://placehold.co/150x150",
-                        desc: "Add flair to your laptop or journal.",
-                        price: "$4.99",
-                        rating: "★★★★☆"
-                    },
-                    {
-                        name: "Graphic Tee",
-                        img: "https://placehold.co/250x300",
-                        desc: "Bold prints for bold personalities.",
-                        price: "$24.99",
-                        rating: "★★★★★"
-                    }
-                    // tambahin sisanya kalau perlu
-                ]
-            }))
-        })
-    </script>
-
-    <section x-data="storeData" id="store" class="py-20 bg-background">
+    <section id="store" class="py-20 bg-background">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12">
                 <h2 class="font-heading font-black text-4xl md:text-5xl text-foreground mb-4">Community Merch</h2>
                 <p class="text-xl text-muted-foreground">Dapatkan merchandise eksklusif dan keren</p>
             </div>
 
-            <div id="store-content" class="expandable-section">
+            <div id="store-content" class="expandable-section relative">
+
+                <div class="w-full h-20 bg-gradient-to-t from-background to-transparent absolute z-20 bottom-0 left-0">
+                </div>
+
                 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <template x-for="product in merch" :key="product.name">
+                    @foreach ($merchs as $m)
                         <div
-                            class="bg-card rounded-sm border overflow-hidden border-border hover:shadow-lg transition-shadow flex flex-col">
+                            class="bg-card rounded-sm border overflow-hidden relative group border-border hover:shadow-lg transition-shadow flex flex-col">
+
+                            {{-- tombol delete --}}
+                            <form action="{{ route('merchs.destroy', $m->id) }}" method="POST"
+                                onsubmit="return confirm('Yakin mau hapus produk ini?')"
+                                class="absolute top-3 right-3">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit">
+                                    <i
+                                        class="fa-solid fa-trash text-transparent cursor-pointer 
+                          hover:text-red-900/50 transition-all 
+                          group-hover:text-black/30 duration-100"></i>
+                                </button>
+                            </form>
 
                             <!-- dynamic image -->
-                            <img :src="product.img" :alt="product.name" class="w-full h-48 object-cover">
+                            <img src="{{ $m['img'] }}" alt="{{ $m['name'] }}"
+                                class="w-full h-48 object-cover">
 
                             <div class="p-6 flex flex-col flex-1">
                                 <!-- dynamic title & desc -->
-                                <h3 class="font-heading font-bold text-lg text-card-foreground mb-2"
-                                    x-text="product.name"></h3>
-                                <p class="text-muted-foreground mb-3" x-text="product.desc"></p>
+                                <h3 class="font-heading font-bold text-lg text-card-foreground mb-2">
+                                    {{ $m['name'] }}
+                                </h3>
+                                <p class="text-muted-foreground mb-3">{{ $m['desc'] }}</p>
 
                                 <!-- price & rating -->
                                 <div class="mt-auto flex items-center justify-between mb-4">
-                                    <span class="text-2xl font-bold text-primary" x-text="product.price"></span>
-                                    <div class="flex text-yellow-400" x-text="product.rating"></div>
+                                    {{-- Format harga jadi Rp 399.000 --}}
+                                    <span class="text-2xl font-bold text-primary">
+                                        Rp {{ number_format($m['price'], 0, ',', '.') }}
+                                    </span>
+
+                                    {{-- Convert rating angka ke bintang --}}
+                                    <div class="flex text-yellow-400">
+                                        {!! str_repeat('★', $m['rating']) !!}{!! str_repeat('☆', 5 - $m['rating']) !!}
+                                    </div>
                                 </div>
 
                                 <!-- button always at bottom -->
@@ -331,8 +377,9 @@
                                 </button>
                             </div>
                         </div>
+                    @endforeach
 
-                    </template>
+
                 </div>
             </div>
 
