@@ -219,7 +219,7 @@
             </div>
 
 
-            <div class="flex gap-3 text-center absolute mx-auto z-20 -bottom-16">
+            <div class="flex gap-3 text-center absolute mx-auto -bottom-16">
                 <button id="events-toggle"
                     class="bg-transition border border-primary text-primary px-5 py-2 hover:bg-opacity-90 transition-colors">
                     Show More Events
@@ -339,8 +339,17 @@
 
                 <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     @foreach ($merchs as $m)
-                        <div
+                        <div x-data="{ openEdit{{ $m->id }}: false }"
                             class="bg-card rounded-sm border overflow-hidden relative group border-border hover:shadow-lg transition-shadow flex flex-col">
+
+
+                            <button type ="button" class="absolute top-3 right-10" aria-label="Edit Gallery"
+                                @click="openEdit{{ $m->id }} = true">
+                                <i
+                                    class="fa-solid fa-pen text-transparent cursor-pointer
+       hover:text-blue-900/50 transition-all
+       group-hover:text-black/30 duration-100"></i>
+                            </button>
 
                             {{-- tombol delete --}}
                             <form action="{{ route('merchs.destroy', $m->id) }}" method="POST"
@@ -357,7 +366,7 @@
                             </form>
 
                             <!-- dynamic image -->
-                            <img src="{{ $m['img'] }}" alt="{{ $m['name'] }}"
+                            <img src="{{ asset('storage/' . $m['img']) }}" alt="{{ $m['img'] }}"
                                 class="w-full h-48 object-cover">
 
                             <div class="p-6 flex flex-col flex-1">
@@ -385,7 +394,9 @@
                                     class="w-full bg-secondary text-black py-2 hover:bg-opacity-90 transition-colors">
                                     Buy Now
                                 </button>
+
                             </div>
+                            @include('merch.edit', ['merch' => $m])
                         </div>
                     @endforeach
 
@@ -393,11 +404,12 @@
                 </div>
             </div>
 
-            <div class="text-center mt-5">
+            <div class="text-center mt-5 flex gap-3 w-full justify-center">
                 <button id="store-toggle"
                     class="bg-transition border border-primary text-primary px-5 py-2 hover:bg-opacity-90 transition-colors">
                     Show More Products
                 </button>
+                @include('merch.create')
             </div>
         </div>
     </section>
